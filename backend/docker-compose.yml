@@ -1,0 +1,62 @@
+services:
+  # MQTT Broker - Eclipse Mosquitto
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: cnc-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+    networks:
+      - cnc-network
+
+  # PostgreSQL Database untuk Time-Series Data
+  postgres:
+    image: postgres:15-alpine
+    container_name: cnc-postgres
+    environment:
+      POSTGRES_DB: cnc_monitor
+      POSTGRES_USER: cnc_user
+      POSTGRES_PASSWORD: cnc_pass_2024
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - cnc-network
+
+  # Backend Service (Node.js)
+  backend:
+    build: .
+    container_name: cnc-backend
+    environment:
+      NODE_ENV: production
+      MQTT_BROKER: mosquitto
+      MQTT_PORT: 1883
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cnc_monitor
+      DB_USER: cnc_user
+      DB_PASSWORD: cnc_pass_2024
+      API_PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mosquitto
+      - postgres
+    restart: unless-stopped
+    networks:
+      - cnc-network
+
+volumes:
+  postgres_data:
+
+networks:
+  cnc-network:
+    driver: bridge

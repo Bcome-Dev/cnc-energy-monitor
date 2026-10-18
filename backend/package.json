@@ -1,0 +1,23 @@
+{
+  "name": "cnc-backend",
+  "version": "1.0.0",
+  "description": "Backend untuk CNC Energy Monitor - MQTT Bridge & REST API",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "standalone": "node src/index-standalone.js"
+  },
+  "keywords": ["iot", "mqtt", "esp32", "energy-monitor"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mqtt": "^5.3.5",
+    "pg": "^8.11.3",
+    "ws": "^8.16.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1"
+  }
+}
